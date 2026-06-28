@@ -1,0 +1,8 @@
+{
+  "/feedback/page": "app/feedback/page.js",
+  "/dashboard/gurukulam-feedback/page": "app/dashboard/gurukulam-feedback/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/audit/page": "app/dashboard/audit/page.js",
+  "/dashboard/feedback/submit/page": "app/dashboard/feedback/submit/page.js",
+  "/dashboard/feedback/ops/page": "app/dashboard/feedback/ops/page.js"
+}
