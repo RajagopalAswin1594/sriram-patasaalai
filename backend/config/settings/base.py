@@ -256,6 +256,8 @@ GITHUB_MILESTONE = _GITHUB["milestone"]
 GITHUB_PROJECT_NODE_ID = _GITHUB["project_node_id"]
 GITHUB_DEFAULT_BRANCH = _GITHUB["default_branch"]
 GITHUB_BRANCH_PREFIX = _GITHUB["branch_prefix"]
+GITHUB_BRANCH_NAME_TEMPLATE = _GITHUB["branch_name_template"]
+GITHUB_GURUKULAM_ID = _GITHUB["gurukulam_id"]
 GITHUB_AUTO_CREATE_BRANCH = _GITHUB["auto_create_branch"]
 
 _GITLAB = FEEDBACK_INTEGRATIONS["gitlab"]

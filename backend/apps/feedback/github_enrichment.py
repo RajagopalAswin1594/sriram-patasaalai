@@ -21,6 +21,40 @@ def _headers(token: str) -> dict[str, str]:
     }
 
 
+DEFAULT_BRANCH_NAME_TEMPLATE = "#{issue}-{feedback_number}-{gurukulam_id}-{slug}"
+MAX_BRANCH_NAME_LEN = 200
+
+
+def sanitize_branch_segment(value: str) -> str:
+    segment = re.sub(r"[^a-zA-Z0-9-]+", "-", value.strip())
+    return segment.strip("-") or "na"
+
+
+def build_issue_branch_name(
+    *,
+    issue_number: int,
+    feedback_number: str,
+    gurukulam_id: str,
+    title: str,
+    branch_prefix: str = "",
+    template: str = DEFAULT_BRANCH_NAME_TEMPLATE,
+    max_len: int = MAX_BRANCH_NAME_LEN,
+) -> str:
+    fb_number = sanitize_branch_segment(feedback_number)
+    gurukulam = sanitize_branch_segment(gurukulam_id)
+    branch_template = template or DEFAULT_BRANCH_NAME_TEMPLATE
+    fixed = branch_template.format(
+        issue=issue_number,
+        feedback_number=fb_number,
+        gurukulam_id=gurukulam,
+        slug="",
+    ).rstrip("-")
+    prefix = f"{branch_prefix}{fixed}-"
+    slug_len = max(8, max_len - len(prefix))
+    slug = slugify_branch(title, max_len=slug_len)
+    return f"{prefix}{slug}"[:max_len]
+
+
 def slugify_branch(text: str, max_len: int = 48) -> str:
     slug = re.sub(r"[^a-zA-Z0-9]+", "-", text.lower()).strip("-")
     return (slug[:max_len] if slug else "issue")
@@ -61,10 +95,13 @@ def create_issue_branch(
     repo: str,
     token: str,
     issue_number: int,
-    issue_title: str,
+    feedback_title: str,
     *,
+    feedback_number: str,
+    gurukulam_id: str,
     default_branch: str = "",
     branch_prefix: str = "",
+    branch_name_template: str = DEFAULT_BRANCH_NAME_TEMPLATE,
 ) -> tuple[str | None, list[IntegrationMessage]]:
     messages: list[IntegrationMessage] = []
     base = get_default_branch(api_url, repo, token, default_branch)
@@ -79,8 +116,14 @@ def create_issue_branch(
         return None, messages
 
     sha = ref_resp.json()["object"]["sha"]
-    slug = slugify_branch(issue_title)
-    branch_name = f"{branch_prefix}{issue_number}-{slug}" if branch_prefix else f"{issue_number}-{slug}"
+    branch_name = build_issue_branch_name(
+        issue_number=issue_number,
+        feedback_number=feedback_number,
+        gurukulam_id=gurukulam_id,
+        title=feedback_title,
+        branch_prefix=branch_prefix,
+        template=branch_name_template,
+    )
     create_resp = requests.post(
         f"{api_url}/repos/{repo}/git/refs",
         headers=headers,
@@ -148,7 +191,9 @@ def enrich_created_issue(
     repo: str,
     token: str,
     issue_data: dict[str, Any],
-    issue_title: str,
+    feedback_title: str,
+    feedback_number: str,
+    gurukulam_id: str,
 ) -> tuple[dict[str, Any], list[IntegrationMessage]]:
     """Apply milestone (already on issue), project link, and branch creation."""
     messages: list[IntegrationMessage] = []
@@ -167,9 +212,12 @@ def enrich_created_issue(
             repo,
             token,
             issue_data["number"],
-            issue_title,
+            feedback_title,
+            feedback_number=feedback_number,
+            gurukulam_id=gurukulam_id,
             default_branch=cfg.get("default_branch", ""),
             branch_prefix=cfg.get("branch_prefix", ""),
+            branch_name_template=cfg.get("branch_name_template", DEFAULT_BRANCH_NAME_TEMPLATE),
         )
         messages.extend(branch_messages)
         metadata["branch_name"] = branch_name or ""

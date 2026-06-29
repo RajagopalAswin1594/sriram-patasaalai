@@ -85,8 +85,14 @@ GITHUB_MILESTONE=Sprint 7
 GITHUB_PROJECT_NODE_ID=PVT_kwDO...
 GITHUB_DEFAULT_BRANCH=main              # empty = repo default
 GITHUB_BRANCH_PREFIX=                   # optional, e.g. feature/
-GITHUB_AUTO_CREATE_BRANCH=true          # creates {issue#}-{slug} branch like "Create a branch"
+GITHUB_BRANCH_NAME_TEMPLATE={issue}-{feedback_number}-{gurukulam_id}-{slug}
+GITHUB_GURUKULAM_ID=PLATFORM            # fallback when feedback has no branch
+GITHUB_AUTO_CREATE_BRANCH=true          # auto-create branch per issue
 ```
+
+**Branch name format (default):** `{issue}-{feedback_number}-{gurukulam_id}-{slug}`  
+Example: `7-FB-2026-9DD2C9-HQ-01-platform-the-branch-name-should-have-the-format-of-custom`  
+`gurukulam_id` uses the feedback's `branch.code` when set; otherwise `GITHUB_GURUKULAM_ID`.
 
 **On issue create (backend API, not GitHub UI):**
 
@@ -96,7 +102,7 @@ GITHUB_AUTO_CREATE_BRANCH=true          # creates {issue#}-{slug} branch like "C
 | Milestone | From `GITHUB_MILESTONE` if set |
 | Project | From `GITHUB_PROJECT_NODE_ID` if set |
 | Assignee | **Not set** — assign manually in GitHub |
-| Branch | Auto-created when `GITHUB_AUTO_CREATE_BRANCH=true` |
+| Branch | `{issue}-{feedback_number}-{gurukulam_id}-{slug}` when `GITHUB_AUTO_CREATE_BRANCH=true` |
 
 Token permissions: **Issues: Read and write**, **Contents: Read and write** (branch creation), and **Project** scope for Projects v2.
 

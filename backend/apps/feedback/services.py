@@ -238,6 +238,13 @@ class GitHubIntegrationService:
         return []
 
     @classmethod
+    def _resolve_gurukulam_id(cls, feedback: Feedback, cfg: dict) -> str:
+        branch = getattr(feedback, "branch", None)
+        if branch and getattr(branch, "code", None):
+            return branch.code
+        return (cfg.get("gurukulam_id") or "PLATFORM").strip()
+
+    @classmethod
     def create_issue(cls, feedback: Feedback, analysis: FeedbackAnalysis) -> tuple[GitHubIssueMapping | None, GitHubSyncResult]:
         cfg = cls._github_cfg()
         repo = (cfg.get("repo") or getattr(settings, "GITHUB_REPO", "")).strip()
@@ -308,7 +315,9 @@ class GitHubIntegrationService:
                 repo=repo,
                 token=token,
                 issue_data=data,
-                issue_title=title,
+                feedback_title=feedback.title,
+                feedback_number=feedback.feedback_number,
+                gurukulam_id=cls._resolve_gurukulam_id(feedback, cfg),
             )
             result.messages.extend(enrich_messages)
             mapping = GitHubIssueMapping.objects.create(

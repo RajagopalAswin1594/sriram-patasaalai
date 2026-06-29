@@ -19,6 +19,11 @@ def load_feedback_integration_settings(env) -> dict[str, Any]:
         "project_node_id": env("GITHUB_PROJECT_NODE_ID", default="").strip(),
         "default_branch": env("GITHUB_DEFAULT_BRANCH", default="").strip(),
         "branch_prefix": env("GITHUB_BRANCH_PREFIX", default="").strip(),
+        "branch_name_template": env(
+            "GITHUB_BRANCH_NAME_TEMPLATE",
+            default="{issue}-{feedback_number}-{gurukulam_id}-{slug}",
+        ).strip(),
+        "gurukulam_id": env("GITHUB_GURUKULAM_ID", default="PLATFORM").strip(),
         "auto_create_branch": env.bool("GITHUB_AUTO_CREATE_BRANCH", default=True),
     }
     gitlab = {

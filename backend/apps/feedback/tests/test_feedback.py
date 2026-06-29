@@ -102,6 +102,8 @@ class FeedbackPlatformTests(TestCase):
         self.assertIn("auto_create_branch", github)
         self.assertIn("default_branch", github)
         self.assertIn("branch_prefix", github)
+        self.assertIn("branch_name_template", github)
+        self.assertIn("gurukulam_id", github)
         self.assertIn("slack", data["providers"])
         self.assertNotIn("token", str(data).lower())
 

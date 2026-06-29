@@ -222,6 +222,8 @@ class FeedbackIntegrationsView(APIView):
                         "project_configured": bool(integrations["github"]["project_node_id"]),
                         "default_branch": integrations["github"]["default_branch"] or None,
                         "branch_prefix": integrations["github"]["branch_prefix"] or None,
+                        "branch_name_template": integrations["github"]["branch_name_template"],
+                        "gurukulam_id": integrations["github"]["gurukulam_id"] or None,
                         "auto_create_branch": integrations["github"]["auto_create_branch"],
                     },
                     "gitlab": {
